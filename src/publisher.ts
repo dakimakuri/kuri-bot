@@ -12,10 +12,10 @@ export class Publisher {
   constructor(private client: Discord.Client, private name: string) {
   }
   async publish(embeds: Discord.RichEmbed[]) {
-    // limit the number of embeds to avoid spam
     await this.mutex.lock();
     try {
-      while (embeds.length > 5) {
+      // limit the number of embeds to avoid spam
+      while (embeds.length > 10) {
         embeds.splice(0, 1);
       }
       embeds = _.filter(embeds, embed => embed.timestamp > this.lastPublish);

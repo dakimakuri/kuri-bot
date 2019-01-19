@@ -20,7 +20,7 @@ Invite the bot to a Discord server using OAuth2. Users in the server with admin 
 
 ## Fixer.io API
 
-To use the currency conversion you must have a fixer.io account (the free tier is sufficient). Provide the access key in the test.env file. The code is designed to hit this endpoint very infrequently so that the rate limit is not reached.
+To use the currency conversion you must have a fixer.io account (the free tier is sufficient). Provide the access key in the ```test.env``` file. The code is designed to hit this endpoint very infrequently so that the rate limit is not reached.
 ```FIXER_API="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"```
 
 ## Features

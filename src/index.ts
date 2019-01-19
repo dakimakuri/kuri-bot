@@ -70,12 +70,12 @@ client.on('message', async (msg: Discord.Message) => {
   } else if (content == 'kuri subscribe') {
     if (admin && msg.channel instanceof Discord.TextChannel) {
       await rDakimakurasPublisher.subscribe(msg.channel);
-      msg.channel.send('Subscribed to r/Dakimakuras.');
+      await msg.channel.send('Subscribed to r/Dakimakuras.');
     }
   } else if (content == 'kuri unsubscribe') {
     if (admin && msg.channel instanceof Discord.TextChannel) {
       await rDakimakurasPublisher.unsubscribe(msg.channel);
-      msg.channel.send('Unsubscribed from r/Dakimakuras.');
+      await msg.channel.send('Unsubscribed from r/Dakimakuras.');
     }
   }
 });
