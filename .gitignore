@@ -1,0 +1,4 @@
+test.env
+prod.env
+data/
+node_modules/

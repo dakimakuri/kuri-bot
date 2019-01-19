@@ -1,0 +1,37 @@
+{
+  "name": "kuri-bot",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "env-cmd ./test.env nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
+    "deploy": "bash -c ./scripts/deploy.sh",
+    "ssh": "bash -c ./scripts/ssh.sh",
+    "tsc": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "dakimakuri",
+  "license": "MIT",
+  "dependencies": {
+    "cat-ascii-faces": "^2.0.0",
+    "discord.js": "^11.4.2",
+    "fs-extra": "^7.0.1",
+    "jsonschema": "^1.2.4",
+    "lodash": "^4.17.11",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.5",
+    "rss-parser": "^3.6.2",
+    "rxjs": "^6.3.3"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^5.0.4",
+    "@types/jsonschema": "^1.1.1",
+    "@types/lodash": "^4.14.119",
+    "@types/request-promise-native": "^1.0.15",
+    "env-cmd": "^8.0.2",
+    "nodemon": "^1.18.9",
+    "ts-node": "^7.0.1",
+    "tsc": "^1.20150623.0",
+    "typescript": "^3.2.4"
+  }
+}

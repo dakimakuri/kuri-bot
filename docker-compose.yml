@@ -1,0 +1,11 @@
+version: '3'
+services:
+  kuri:
+    build: .
+    restart: always
+    volumes:
+      - data:/usr/src/app/data
+    env_file:
+      - prod.env
+volumes:
+  data: {}
