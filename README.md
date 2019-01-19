@@ -61,7 +61,7 @@ Posts cute cat faces when someone ```nya```s.
 
 ## Deploying
 
-The bot is meant to be ran inside a Docker container and is deployed with docker-compose. Environment variables should be configured within a prod.env file (with the same format as test.env). The actual production bot is deployed with ```npm run deploy``` and the ```scripts/deploy.sh``` script on a docker-machine named ```kuri-bot```.
+The bot is meant to be ran inside a Docker container and is deployed with docker-compose. Environment variables should be configured within a ```prod.env``` file (with the same format as ```test.env```). The actual production bot is deployed with ```npm run deploy``` and the ```scripts/deploy.sh``` script on a docker-machine named ```kuri-bot```.
 
 The following Docker commands should work to test a production deployment locally:
 
