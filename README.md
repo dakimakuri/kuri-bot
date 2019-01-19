@@ -26,9 +26,38 @@ To use the currency conversion you must have a fixer.io account (the free tier i
 ## Features
 
 ### Currency conversions (using rates from fixer.io)
+
+Converts currency rates matching the following pattern:
+
+```50 usd to jpy```
+
+Will output something like:
+
+```50 USD = 5488.75 JPY```
+
 ### Celcius to fahrenheit and fahrenheit to celcius
+
+Converts celius to fahrenheit and vice versa. The following message:
+
+```100 c to f```
+
+Will output:
+
+```100 C = 212 F```
+
 ### Posts from r/Dakimakuras
+
+Automatically fetches new posts from the [r/Dakimakuras](https://www.reddit.com/r/Dakimakuras) subreddit and publishes them to all channels subscribed using:
+
+```kuri subscribe```
+
+A channel can be unsubscribed by using:
+
+```kuri unsubscribe```
+
 ### Nya
+
+Posts cute cat faces when someone ```nya```s.
 
 ## Deploying
 
