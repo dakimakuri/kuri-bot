@@ -45,15 +45,17 @@ Will output:
 
 ```100 C = 212 F```
 
-### Posts from r/Dakimakuras
+### RSS publishers
 
-Automatically fetches new posts from the [r/Dakimakuras](https://www.reddit.com/r/Dakimakuras) subreddit and publishes them to all channels subscribed using:
+Fetches rss feeds from [r/Dakimakuras](https://www.reddit.com/r/Dakimakuras) and [Cuddly Octopus](https://cuddlyoctopus.com) publishing any new posts to all subscribed channels.
 
-```kuri subscribe```
+Subscribe using:
+
+```kuri subscribe <r-dakimakuras|cuddly-octopus>```
 
 A channel can be unsubscribed by using:
 
-```kuri unsubscribe```
+```kuri unsubscribe <r-dakimakuras|cuddly-octopus>```
 
 ### Nya
 
