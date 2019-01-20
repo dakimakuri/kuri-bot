@@ -38,7 +38,7 @@ function rssToEmbed(rss: any, name: string) {
   return embed;
 }
 
-export async function getEmbeds(subreddit: string): Promise<Discord.RichEmbed[]> {
+export async function getEmbeds(subreddit: string, _since: Date): Promise<Discord.RichEmbed[]> {
   let feed = await parser.parseURL(`https://www.reddit.com/r/${subreddit}/.rss`);
   let embeds: Discord.RichEmbed[] = [];
   feed.items.sort((a: any, b: any) => (new Date(a.pubDate).getTime()) - (new Date(b.pubDate).getTime())); // TODO: make sure pubDate isnt undefined

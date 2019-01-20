@@ -3,28 +3,40 @@ import * as fs from 'fs-extra';
 import * as _ from 'lodash';
 import * as env from './env';
 import * as reddit from './reddit';
+import * as cuddlyOctopus from './cuddlyoctopus';
 import { Mutex } from './mutex';
 import { currency } from './currency';
 import { Publisher } from './publisher';
 const cats = require('cat-ascii-faces')
 
 const client = new Discord.Client();
-const rDakimakurasPublisher = new Publisher(client, 'r-dakimakuras');
 
-async function checkReddit() {
+const publishers = {
+  'r-dakimakuras': new Publisher(client, 'r-dakimakuras'),
+  'cuddly-octopus': new Publisher(client, 'cuddly-octopus')
+};
+
+async function checkPublisher(name: string, delayMinutes: number, fn: any) {
   while (true) {
-    // publish newest embeds
-    await rDakimakurasPublisher.publish(await reddit.getEmbeds('Dakimakuras'));
+    // wait
+    await new Promise(resolve => setTimeout(resolve, 1000 * 60 * delayMinutes));
 
-    // wait 10 minutes
-    await new Promise(resolve => setTimeout(resolve, 1000 * 60 * 10));
+    // publish embeds
+    let publisher = await publishers[name];
+    await publisher.publish(await fn(publisher.lastPublish));
   }
 }
 
 client.on('ready', async () => {
-  await rDakimakurasPublisher.load();
+  for (let key in publishers) {
+    let publisher = publishers[key];
+    await publisher.load();
+  }
   console.log(`Logged in as ${client.user.tag}!`);
-  checkReddit();
+
+  // start publisher checks
+  checkPublisher('r-dakimakuras', 15, reddit.getEmbeds.bind(reddit, 'dakimakuras')); // check r/dakimakuras every 15 minutes
+  checkPublisher('cuddly-octopus', 60 * 12, cuddlyOctopus.getEmbeds); // check cuddly octopus every 12 hours
 });
 
 client.on('message', async (msg: Discord.Message) => {
@@ -67,15 +79,20 @@ client.on('message', async (msg: Discord.Message) => {
   } else if (content.replace(/[^a-z]/gi, '').toLowerCase().match(/^n+y+a+h*$/)) {
     // respond to nya with cat face
     msg.channel.send(cats());
-  } else if (content == 'kuri subscribe') {
-    if (admin && msg.channel instanceof Discord.TextChannel) {
-      await rDakimakurasPublisher.subscribe(msg.channel);
-      await msg.channel.send('Subscribed to r/Dakimakuras.');
-    }
-  } else if (content == 'kuri unsubscribe') {
-    if (admin && msg.channel instanceof Discord.TextChannel) {
-      await rDakimakurasPublisher.unsubscribe(msg.channel);
-      await msg.channel.send('Unsubscribed from r/Dakimakuras.');
+  } else {
+    for (let key in publishers) {
+      let publisher = publishers[key];
+      if (content == `kuri subscribe ${key}`) {
+        if (admin && msg.channel instanceof Discord.TextChannel) {
+          await publisher.subscribe(msg.channel);
+          await msg.channel.send(`Subscribed to ${key}.`);
+        }
+      } else if (content == `kuri unsubscribe ${key}`) {
+        if (admin && msg.channel instanceof Discord.TextChannel) {
+          await publisher.unsubscribe(msg.channel);
+          await msg.channel.send(`Unsubscribed from ${key}.`);
+        }
+      }
     }
   }
 });

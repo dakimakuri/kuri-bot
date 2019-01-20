@@ -14,6 +14,7 @@
   "license": "MIT",
   "dependencies": {
     "cat-ascii-faces": "^2.0.0",
+    "cheerio": "^1.0.0-rc.2",
     "discord.js": "^11.4.2",
     "fs-extra": "^7.0.1",
     "jsonschema": "^1.2.4",
@@ -21,9 +22,11 @@
     "request": "^2.88.0",
     "request-promise-native": "^1.0.5",
     "rss-parser": "^3.6.2",
-    "rxjs": "^6.3.3"
+    "rxjs": "^6.3.3",
+    "turndown": "^5.0.1"
   },
   "devDependencies": {
+    "@types/cheerio": "^0.22.10",
     "@types/fs-extra": "^5.0.4",
     "@types/jsonschema": "^1.1.1",
     "@types/lodash": "^4.14.119",
