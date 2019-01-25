@@ -10,10 +10,11 @@ import { Publisher } from './publisher';
 const cats = require('cat-ascii-faces')
 
 const client = new Discord.Client();
+const syrene = new Discord.Client();
 
 const publishers = {
   'r-dakimakuras': new Publisher(client, 'r-dakimakuras'),
-  'cuddly-octopus': new Publisher(client, 'cuddly-octopus')
+  'cuddly-octopus': new Publisher(env.syreneToken ? syrene : client, 'cuddly-octopus')
 };
 
 async function checkPublisher(name: string, delayMinutes: number, fn: any) {
@@ -97,11 +98,18 @@ client.on('message', async (msg: Discord.Message) => {
   }
 });
 
+syrene.on('ready', async () => {
+  console.log(`Logged in as ${syrene.user.tag}!`);
+});
+
 (async() => {
   try {
     await fs.ensureDir('data');
     await fs.ensureDir('data/cache');
     await fs.ensureDir('data/publishers');
+    if (env.syreneToken) {
+      syrene.login(env.syreneToken);
+    }
     client.login(env.token);
   } catch (err) {
     console.error(err);
