@@ -18,10 +18,16 @@ Run the program using npm.
 
 Invite the bot to a Discord server using OAuth2. Users in the server with admin priviledges will be able to configure the bot.
 
-## Fixer.io API
+### Fixer.io API
 
 To use the currency conversion you must have a fixer.io account (the free tier is sufficient). Provide the access key in the ```test.env``` file. The code is designed to hit this endpoint very infrequently so that the rate limit is not reached.
 ```FIXER_API="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"```
+
+### Syrene Bot
+
+A separate Syrene bot can be used for posting Cuddly Octopus updates. If not present, Kuri will post the updates like usual. To configure the Syrene bot add ```SYRENE_TOKEN``` to the environment file with the bot's token.
+
+```SYRENE_TOKEN="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"```
 
 ## Features
 
