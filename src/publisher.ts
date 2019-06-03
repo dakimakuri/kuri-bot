@@ -5,7 +5,7 @@ import { validate } from 'jsonschema';
 import { Mutex } from './mutex';
 
 export class Publisher {
-  private channels: Discord.TextChannel[] = [];
+  private channels: string[] = [];
   private _lastPublish = new Date();
   private mutex = new Mutex();
   get lastPublish() { return this._lastPublish; }
@@ -21,7 +21,10 @@ export class Publisher {
       embeds = _.filter(embeds, embed => embed.timestamp > this.lastPublish);
       for (let embed of embeds) {
         for (let channel of this.channels) {
-          await channel.send(embed);
+          let find = this.client.channels.get(channel);
+          if (find instanceof Discord.TextChannel) {
+            await find.send(embed);
+          }
         }
         if (embed.timestamp > this.lastPublish) {
           this._lastPublish = embed.timestamp;
@@ -35,22 +38,20 @@ export class Publisher {
   async subscribe(newChannel: Discord.TextChannel) {
     await this.mutex.lock();
     try {
-      for (let channel of this.channels) {
-        if (channel.id == newChannel.id) {
-          return;
-        }
+      if (this.channels.indexOf(newChannel.id) === -1) {
+        this.channels.push(newChannel.id);
       }
-      this.channels.push(newChannel);
     } finally {
       this.mutex.release();
       await this.save();
     }
   }
-  async unsubscribe(newChannel: Discord.TextChannel) {
+  async unsubscribe(channel: Discord.TextChannel) {
     await this.mutex.lock();
     try {
-      for (let i = 0; i < this.channels.length; ++i) {
-        this.channels.splice(i, 1);
+      let ind = this.channels.indexOf(channel.id);
+      if (ind !== -1) {
+        this.channels.splice(ind, 1);
       }
     } finally {
       this.mutex.release();
@@ -79,13 +80,7 @@ export class Publisher {
             }
           }
         }, { throwError: true });
-        this.channels = [];
-        for (let channel of data.channels) {
-          let find = this.client.channels.get(channel);
-          if (find instanceof Discord.TextChannel) {
-            this.channels.push(find);
-          }
-        }
+        this.channels = data.channels;
         this._lastPublish = new Date(data.lastPublish);
       } catch (err) {
         if (_.get(err, 'code') == 'ENOENT') {
@@ -103,7 +98,7 @@ export class Publisher {
     await this.mutex.lock();
     try {
       await fs.writeJson(`data/publishers/${this.name}.json`, {
-        channels: _.map(this.channels, channel => channel.id),
+        channels: this.channels,
         lastPublish: this._lastPublish.toISOString()
       });
     } finally {
