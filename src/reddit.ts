@@ -26,7 +26,7 @@ function rssToEmbed(rss: any, name: string) {
   }
 
   const embed = new Discord.RichEmbed();
-  if (typeof rss.title === 'string') embed.setTitle(rss.title);
+  if (typeof rss.title === 'string') embed.setTitle(rss.title.substr(0, 256));
   if (typeof rss.link === 'string') embed.setURL(rss.link);
   embed.setColor(16727832); // TODO: new reddit color
   if (typeof rss.pubDate === 'string') embed.setTimestamp(new Date(rss.pubDate));

@@ -44,7 +44,7 @@ export async function getEmbeds(since: Date): Promise<Discord.RichEmbed[]> {
     }
     if (item.categories.indexOf('Product Updates') !== -1) {
       let embed = new Discord.RichEmbed();
-      embed.setTitle(item.title);
+      embed.setTitle(item.title.substr(0, 256));
       let desc = trimDescription(td.turndown(item['content:encoded']), item.link);
       embed.setDescription(desc);
       embed.setURL(item.link);
