@@ -38,22 +38,22 @@ async function checkPublisher(name: string, delayMinutes: number, fn: any) {
 let octoArray = [];
 let octoMutex = new Mutex();
 const octoTimeout = 20000; // 20 seconds
-async function matchOcto(typeToMatch : number, originalMessage: any) {
+const octo1Emote = "<:Octo1:624238806471802902>"
+const octo2Emote = "<:Octo2:624238818807119882>"
+function matchOcto(typeToMatch : number, originalMessage: any) {
     let idOfOriginalMessage = originalMessage.id;
-    await octoMutex.lock();
-    try {
-        // Check that it hasn't already been matched (by a user)
-        if(!octoArray.every(inst => inst.id !== idOfOriginalMessage)) {
-            //Remove the message from the array
-            octoArray.splice(octoArray.findIndex(inst => inst.id === idOfOriginalMessage), 1);
-            //Send message to match the octopus.
-            if(typeToMatch == 1) {
-                originalMessage.channel.send(`<:Octo2:624238818807119882>`);
-            } else {
-                originalMessage.channel.send(`<:Octo1:624238806471802902>`);
-            }
-        }
-    } finally { octoMutex.release(); }
+    // No need to check if already matched,
+    // as if it were the timeout would be cleared.
+    
+    //Remove the message from the array
+    octoArray.splice(octoArray.findIndex(inst => inst.id === idOfOriginalMessage), 1);
+    
+    //Send message to match the octopus.
+    if(typeToMatch == 1) {
+        originalMessage.channel.send(octo2Emote);
+    } else {
+        originalMessage.channel.send(octo1Emote);
+    }
 }
 
 client.on('ready', async () => {
@@ -206,28 +206,29 @@ syrene.on('ready', async () => {
   console.log(`Logged in as ${syrene.user.tag}!`);
 });
 
+let octoHugId = "617843371540742144";
+let octoHugEmote = "<:Octohug:617843371540742144>";
 syrene.on('message', async (msg: Discord.Message) => {
   if (msg.author.bot) return;
   if (!msg.member) return;
   let content = msg.content.trim();
-  if (content === "<:Octo1:624238806471802902>" || content === "<:Octo2:624238818807119882>") {
+  if (content === octo1Emote || content === octo2Emote) {
     // Use strict equality since we really only want to consider the message body being strictly the emoji.
-      let ty = content==="<:Octo1:624238806471802902>"?1:2;
-      let otherTy = content==="<:Octo1:624238806471802902>"?2:1;
-      await octoMutex.lock();
-      try {
-          let thisChannelOctos = octoArray.filter(inst => inst.chan_id === msg.channel.id);
-          if(thisChannelOctos.length !== 0 && thisChannelOctos[thisChannelOctos.length - 1].type === otherTy) {
-              //This message is here to match an Octo2; just cancel it out
-              let cancelledOutMsg = thisChannelOctos[thisChannelOctos.length - 1].id;
-              octoArray.splice(octoArray.findIndex(inst => inst.id === cancelledOutMsg), 1);
-          } else {
-            octoArray.push({type: ty, id: msg.id, chan_id: msg.channel.id}); //Remember this message
-            setTimeout(matchOcto, octoTimeout, ty, msg); //Match it later.
-          }
-      } finally { octoMutex.release(); }
-  } else if (content === "<:Octohug:617843371540742144>") {
-      msg.react("617843371540742144");
+      let ty = content===octo1Emote?1:2;
+      let otherTy = content===octo1Emote?2:1;
+      
+      let thisChannelOctos = octoArray.filter(inst => inst.chan_id === msg.channel.id);
+      if(thisChannelOctos.length !== 0 && thisChannelOctos[thisChannelOctos.length - 1].type === otherTy) {
+        //This message is here to match an Octo2; just cancel it out
+        let toCancel = thisChannelOctos[thisChannelOctos.length - 1];
+        octoArray.splice(octoArray.findIndex(inst => inst.id === toCancel.id), 1);
+        clearTimeout(toCancel.timeout_id);
+      } else {
+      let timeout_id = setTimeout(matchOcto, octoTimeout, ty, msg); //Match it later.
+      octoArray.push({type: ty, id: msg.id, chan_id: msg.channel.id, timeout_id: timeout_id});
+    }
+  } else if (content === octoHugEmote) {
+      msg.react(octoHugId);
       //Note: This WILL fail if the bot is used in a server that's
       //not Dakimakuras, as the emote will not be available.
   }
