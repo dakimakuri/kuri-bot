@@ -226,6 +226,10 @@ syrene.on('message', async (msg: Discord.Message) => {
             setTimeout(matchOcto, octoTimeout, ty, msg); //Match it later.
           }
       } finally { octoMutex.release(); }
+  } else if (content === "<:Octohug:617843371540742144>") {
+      msg.react("617843371540742144");
+      //Note: This WILL fail if the bot is used in a server that's
+      //not Dakimakuras, as the emote will not be available.
   }
 });
 
