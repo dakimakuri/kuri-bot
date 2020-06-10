@@ -210,35 +210,23 @@ syrene.on('message', async (msg: Discord.Message) => {
   if (msg.author.bot) return;
   if (!msg.member) return;
   let content = msg.content.trim();
-  if (content === "<:Octo1:624238806471802902>") {
+  if (content === "<:Octo1:624238806471802902>" || content === "<:Octo2:624238818807119882>") {
     // Use strict equality since we really only want to consider the message body being strictly the emoji.
+      let ty = content==="<:Octo1:624238806471802902>"?1:2;
+      let otherTy = content==="<:Octo1:624238806471802902>"?2:1;
       await octoMutex.lock();
       try {
           let thisChannelOctos = octoArray.filter(inst => inst.chan_id === msg.channel.id);
-          if(thisChannelOctos.length !== 0 && thisChannelOctos[thisChannelOctos.length - 1].type === 2) {
+          if(thisChannelOctos.length !== 0 && thisChannelOctos[thisChannelOctos.length - 1].type === otherTy) {
               //This message is here to match an Octo2; just cancel it out
               let cancelledOutMsg = thisChannelOctos[thisChannelOctos.length - 1].id;
               octoArray.splice(octoArray.findIndex(inst => inst.id === cancelledOutMsg), 1);
           } else {
-            octoArray.push({type: 1, id: msg.id, chan_id: msg.channel.id}); //Remember this message
-            setTimeout(matchOcto, octoTimeout, 1, msg); //Match it later.
+            octoArray.push({type: ty, id: msg.id, chan_id: msg.channel.id}); //Remember this message
+            setTimeout(matchOcto, octoTimeout, ty, msg); //Match it later.
           }
       } finally { octoMutex.release(); }
-  } else if (content === "<:Octo2:624238818807119882>") {
-      //Basically copy paste of above block but with the octo type inverted
-      //Could potentially abstract it out but probs not worth it
-      await octoMutex.lock();
-      try {
-          let thisChannelOctos = octoArray.filter(inst => inst.chan_id === msg.channel.id);
-          if(thisChannelOctos.length !== 0 && thisChannelOctos[thisChannelOctos.length - 1].type === 1) {
-              let cancelledOutMsg = thisChannelOctos[thisChannelOctos.length - 1].id;
-              octoArray.splice(octoArray.findIndex(inst => inst.id === cancelledOutMsg), 1);
-          } else {
-            octoArray.push({type: 2, id: msg.id, chan_id: msg.channel.id});
-            setTimeout(matchOcto, octoTimeout, 2, msg);
-          }
-      } finally { octoMutex.release(); }
-  } 
+  }
 });
 
 (async() => {
