@@ -206,8 +206,8 @@ syrene.on('ready', async () => {
   console.log(`Logged in as ${syrene.user.tag}!`);
 });
 
-let octoHugId = "617843371540742144";
-let octoHugEmote = "<:Octohug:617843371540742144>";
+const octoHugId = "617843371540742144";
+const octoHugEmote = "<:Octohug:617843371540742144>";
 syrene.on('message', async (msg: Discord.Message) => {
   if (msg.author.bot) return;
   if (!msg.member) return;
