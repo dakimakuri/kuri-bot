@@ -19,6 +19,7 @@ const publishers = {
 
 let assignableRoles = [];
 
+
 async function checkPublisher(name: string, delayMinutes: number, fn: any) {
   while (true) {
     // wait
@@ -34,6 +35,26 @@ async function checkPublisher(name: string, delayMinutes: number, fn: any) {
   }
 }
 
+let octoArray = [];
+let octoMutex = new Mutex();
+const octoTimeout = 20000; // 20 seconds
+async function matchOcto(typeToMatch : number, originalMessage: any) {
+    let idOfOriginalMessage = originalMessage.id;
+    await octoMutex.lock();
+    try {
+        // Check that it hasn't already been matched (by a user)
+        if(!octoArray.every(inst => inst.id !== idOfOriginalMessage)) {
+            //Remove the message from the array
+            octoArray.splice(octoArray.findIndex(inst => inst.id == idOfOriginalMessage), 1);
+            //Send message to match the octopus.
+            if(typeToMatch == 1) {
+                originalMessage.channel.send(`<:Octo2:624238818807119882>`);
+            } else {
+                originalMessage.channel.send(`<:Octo1:624238806471802902>`);
+            }
+        }
+    } finally { octoMutex.release(); }
+}
 
 client.on('ready', async () => {
   for (let key in publishers) {
@@ -183,6 +204,37 @@ client.on('message', async (msg: Discord.Message) => {
 
 syrene.on('ready', async () => {
   console.log(`Logged in as ${syrene.user.tag}!`);
+});
+
+syrene.on('message', async (msg: Discord.Message) => {
+  if (msg.author.bot) return;
+  if (!msg.member) return;
+  let content = msg.content.trim();
+  if (content === "<:Octo1:624238806471802902>") {
+    // Use strict equality since we really only want to consider the message body being strictly the emoji.
+      await octoMutex.lock();
+      try {
+          if(octoArray.length !== 0 && octoArray[octoArray.length - 1].type === 2) {
+              //This message is here to match an Octo2; just cancel it out
+              octoArray.pop();
+          } else {
+            octoArray.push({type: 1, id: msg.id}); //Remember this message
+            setTimeout(matchOcto, octoTimeout, 1, msg); //Match it later.
+          }
+      } finally { octoMutex.release(); }
+  } else if (content === "<:Octo2:624238818807119882>") {
+      //Basically copy paste of above block but with the octo type inverted
+      //Could potentially abstract it out but probs not worth it
+      await octoMutex.lock();
+      try {
+          if(octoArray.length !== 0 && octoArray[octoArray.length - 1].type === 1) {
+              octoArray.pop();
+          } else {
+            octoArray.push({type: 2, id: msg.id});
+            setTimeout(matchOcto, octoTimeout, 2, msg);
+          }
+      } finally { octoMutex.release(); }
+  } 
 });
 
 (async() => {
