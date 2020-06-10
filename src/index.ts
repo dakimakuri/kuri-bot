@@ -38,8 +38,8 @@ async function checkPublisher(name: string, delayMinutes: number, fn: any) {
 let octoArray = [];
 let octoMutex = new Mutex();
 const octoTimeout = 20000; // 20 seconds
-let octo1Emote = "<:Octo1:624238806471802902>"
-let octo2Emote = "<:Octo2:624238818807119882>"
+const octo1Emote = "<:Octo1:624238806471802902>"
+const octo2Emote = "<:Octo2:624238818807119882>"
 function matchOcto(typeToMatch : number, originalMessage: any) {
     let idOfOriginalMessage = originalMessage.id;
     // No need to check if already matched,
