@@ -38,22 +38,22 @@ async function checkPublisher(name: string, delayMinutes: number, fn: any) {
 let octoArray = [];
 let octoMutex = new Mutex();
 const octoTimeout = 20000; // 20 seconds
-const octo1Emote = "<:Octo1:624238806471802902>"
-const octo2Emote = "<:Octo2:624238818807119882>"
+const octo1Emote = "<:Octo1:733281498697826324>"
+const octo2Emote = "<:Octo2:733281510588940288>"
 function matchOcto(typeToMatch : number, originalMessage: any) {
-    let idOfOriginalMessage = originalMessage.id;
-    // No need to check if already matched,
-    // as if it were the timeout would be cleared.
-    
-    //Remove the message from the array
-    octoArray.splice(octoArray.findIndex(inst => inst.id === idOfOriginalMessage), 1);
-    
-    //Send message to match the octopus.
-    if(typeToMatch == 1) {
-        originalMessage.channel.send(octo2Emote);
-    } else {
-        originalMessage.channel.send(octo1Emote);
-    }
+  let idOfOriginalMessage = originalMessage.id;
+  // No need to check if already matched,
+  // as if it were the timeout would be cleared.
+
+  //Remove the message from the array
+  octoArray.splice(octoArray.findIndex(inst => inst.id === idOfOriginalMessage), 1);
+
+  //Send message to match the octopus.
+  if(typeToMatch == 1) {
+    originalMessage.channel.send(octo2Emote);
+  } else {
+    originalMessage.channel.send(octo1Emote);
+  }
 }
 
 client.on('ready', async () => {
@@ -212,16 +212,16 @@ syrene.on('message', async (msg: Discord.Message) => {
   let content = msg.content.trim();
   if (content === octo1Emote || content === octo2Emote) {
     // Use strict equality since we really only want to consider the message body being strictly the emoji.
-      let ty = content===octo1Emote?1:2;
-      let otherTy = content===octo1Emote?2:1;
-      
-      let thisChannelOctos = octoArray.filter(inst => inst.chan_id === msg.channel.id);
-      if(thisChannelOctos.length !== 0 && thisChannelOctos[thisChannelOctos.length - 1].type === otherTy) {
-        //This message is here to match an Octo2; just cancel it out
-        let toCancel = thisChannelOctos[thisChannelOctos.length - 1];
-        octoArray.splice(octoArray.findIndex(inst => inst.id === toCancel.id), 1);
-        clearTimeout(toCancel.timeout_id);
-      } else {
+    let ty = content===octo1Emote?1:2;
+    let otherTy = content===octo1Emote?2:1;
+
+    let thisChannelOctos = octoArray.filter(inst => inst.chan_id === msg.channel.id);
+    if(thisChannelOctos.length !== 0 && thisChannelOctos[thisChannelOctos.length - 1].type === otherTy) {
+      //This message is here to match an Octo2; just cancel it out
+      let toCancel = thisChannelOctos[thisChannelOctos.length - 1];
+      octoArray.splice(octoArray.findIndex(inst => inst.id === toCancel.id), 1);
+      clearTimeout(toCancel.timeout_id);
+    } else {
       let timeout_id = setTimeout(matchOcto, octoTimeout, ty, msg); //Match it later.
       octoArray.push({type: ty, id: msg.id, chan_id: msg.channel.id, timeout_id: timeout_id});
     }
