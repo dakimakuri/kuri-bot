@@ -123,7 +123,7 @@ client.on('message', async (msg: Discord.Message) => {
           if (!first) {
             response += ', ';
           }
-          let role = msg.guild.roles.get(assignableRole.role);
+          let role = await msg.guild.roles.fetch(assignableRole.role);
           response += `${assignableRole.command} (${role.name})`;
           first = false;
         }
@@ -141,7 +141,7 @@ client.on('message', async (msg: Discord.Message) => {
           if (_.find(assignableRoles, { command, guild } as any)) {
             await msg.channel.send('Command already exists: ' + command);
           } else {
-            if (role.hasPermission('ADMINISTRATOR')) {
+            if (role.permissions.has('ADMINISTRATOR')) {
               await msg.channel.send(`${role.name} cannot be self-assigned.`);
             } else {
               assignableRoles.push({ command, guild, role: role.id });
@@ -184,15 +184,15 @@ client.on('message', async (msg: Discord.Message) => {
   } else {
     for (let assignableRole of assignableRoles) {
       if (content === assignableRole.command) {
-        let role = msg.guild.roles.get(assignableRole.role);
+        let role = await msg.guild.roles.fetch(assignableRole.role);
         if (role) {
-          let hasRole = msg.member.roles.has(assignableRole.role);
+          let hasRole = msg.member.roles.cache.has(assignableRole.role);
           if (hasRole) {
             await msg.reply(`Removing the role: ${role.name}`);
-            msg.member.removeRole(role);
+            await msg.member.roles.remove(role);
           } else {
             await msg.reply(`Giving you the role: ${role.name}`);
-            msg.member.addRole(role);
+            await msg.member.roles.add(role);
           }
         } else {
           await msg.reply(`The role for that command is is no longer available.`);

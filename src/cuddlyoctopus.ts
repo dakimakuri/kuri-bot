@@ -33,8 +33,8 @@ function trimDescription(desc: string, link: string) {
   return desc;
 }
 
-export async function getEmbeds(since: Date): Promise<Discord.RichEmbed[]> {
-  let embeds: Discord.RichEmbed[] = [];
+export async function getEmbeds(since: Date): Promise<Discord.MessageEmbed[]> {
+  let embeds: Discord.MessageEmbed[] = [];
   let feed = await parser.parseURL('https://cuddlyoctopus.com/feed/');
   feed.items.sort((a: any, b: any) => (new Date(a.pubDate).getTime()) - (new Date(b.pubDate).getTime())); // TODO: make sure pubDate isnt undefined
   for (let item of feed.items) {
@@ -43,7 +43,7 @@ export async function getEmbeds(since: Date): Promise<Discord.RichEmbed[]> {
       continue;
     }
     if (item.categories.indexOf('Product Updates') !== -1) {
-      let embed = new Discord.RichEmbed();
+      let embed = new Discord.MessageEmbed();
       embed.setTitle(item.title.substr(0, 256));
       let desc = trimDescription(td.turndown(item['content:encoded']), item.link);
       embed.setDescription(desc);
