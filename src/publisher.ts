@@ -11,23 +11,23 @@ export class Publisher {
   get lastPublish() { return this._lastPublish; }
   constructor(private client: Discord.Client, private name: string) {
   }
-  async publish(embeds: Discord.RichEmbed[]) {
+  async publish(embeds: Discord.MessageEmbed[]) {
     await this.mutex.lock();
     try {
       // limit the number of embeds to avoid spam
       while (embeds.length > 10) {
         embeds.splice(0, 1);
       }
-      embeds = _.filter(embeds, embed => embed.timestamp > this.lastPublish);
+      embeds = _.filter(embeds, embed => embed.timestamp > this.lastPublish.getTime());
       for (let embed of embeds) {
         for (let channel of this.channels) {
-          let find = this.client.channels.get(channel);
+          let find = await this.client.channels.fetch(channel);
           if (find instanceof Discord.TextChannel) {
             await find.send(embed);
           }
         }
-        if (embed.timestamp > this.lastPublish) {
-          this._lastPublish = embed.timestamp;
+        if (embed.timestamp > this.lastPublish.getTime()) {
+          this._lastPublish = new Date(embed.timestamp);
         }
       }
     } finally {
