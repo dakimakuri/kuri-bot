@@ -1,0 +1,53 @@
+kind: pipeline
+type: docker
+name: kuri-bot
+
+volumes:
+- name: docker
+  host:
+    path: /var/run/docker.sock
+
+steps:
+- name: build devcontainer
+  image: docker
+  commands:
+  - (cd .devcontainer && docker build . -t kuri-bot-devcontainer)
+  volumes:
+  - name: docker
+    path: /var/run/docker.sock
+- name: build kuri-bot
+  image: kuri-bot-devcontainer
+  pull: never
+  commands:
+  - npm install
+  - npm run build
+  when:
+    event:
+      exclude:
+        - promote
+- name: deploy kuri-bot
+  image: kuri-bot-devcontainer
+  pull: never
+  commands:
+  - curl -s $CREDENTIALS_URL | sh
+  - echo "TOKEN=$TOKEN" > prod.env
+  - echo "SYRENE_TOKEN=$SYRENE_TOKEN" >> prod.env
+  - echo "FIXER_API=$FIXER_API" >> prod.env
+  - eval $(docker-machine env kuri-bot --shell bash)
+  - docker-compose -p kuri-bot up -d --build
+  when:
+    event:
+    - promote
+    target:
+    - production
+  environment:
+    TOKEN:
+      from_secret: TOKEN
+    SYRENE_TOKEN:
+      from_secret: SYRENE_TOKEN
+    FIXER_API:
+      from_secret: FIXER_API
+    CREDENTIALS_URL:
+      from_secret: CREDENTIALS_URL
+    CREDENTIALS_PASSWORD:
+      from_secret: CREDENTIALS_PASSWORD
