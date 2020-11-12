@@ -1,6 +1,8 @@
 # Kuri Bot
 
-The official Dakimakuri Discord bot. This is not a general purpose bot and is made specifically for the Dakimakuri Discord server. Contributions are welcome (although new features are discouraged without approval) and the code is released under the MIT license.
+[![Build Status](https://drone.kuri.ws/api/badges/dakimakuri/kuri-bot/status.svg)](https://drone.kuri.ws/dakimakuri/kuri-bot)
+
+The Kuri bot for the [Dakimakuras Discord](https://discord.gg/Ybb78PM). This is not a general purpose bot and is made specifically for the Dakimakuras Discord server. Contributions are welcome (although new features are discouraged without approval) and the code is released under the MIT license.
 
 ## Getting Started
 
@@ -69,17 +71,16 @@ Posts cute cat faces when someone ```nya```s.
 
 ## Deploying
 
-The bot is meant to be ran inside a Docker container and is deployed with docker-compose. Environment variables should be configured within a ```prod.env``` file (with the same format as ```test.env```). The actual production bot is deployed with ```npm run deploy``` and the ```scripts/deploy.sh``` script on a docker-machine named ```kuri-bot```.
+The bot is meant to be ran inside a Docker container and is deployed with docker-compose. Environment variables should be configured within a ```prod.env``` file (with the same format as ```test.env```).
 
-The following Docker commands should work to test a production deployment locally:
+The following docker compose commands should work to test a production deployment locally:
 
 ```
-docker-compose build
-docker-compose up -d
+docker-compose up -d --build
 ```
 
 To remove the deployment from docker:
 
 ```
-docker-compose down
+docker-compose down -v
 ```
