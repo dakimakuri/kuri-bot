@@ -27,7 +27,7 @@ To use the currency conversion you must have a fixer.io account (the free tier i
 
 ### Syrene Bot
 
-A separate Syrene bot can be used for posting Cuddly Octopus updates. If not present, Kuri will post the updates like usual. To configure the Syrene bot add ```SYRENE_TOKEN``` to the environment file with the bot's token.
+A separate Syrene bot can be used for giving octopus hugs.
 
 ```SYRENE_TOKEN="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"```
 
@@ -55,15 +55,15 @@ Will output:
 
 ### RSS publishers
 
-Fetches rss feeds from [r/Dakimakuras](https://www.reddit.com/r/Dakimakuras) and [Cuddly Octopus](https://cuddlyoctopus.com) publishing any new posts to all subscribed channels.
+Fetches rss feeds from [r/Dakimakuras](https://www.reddit.com/r/Dakimakuras) publishing any new posts to all subscribed channels.
 
 Subscribe using:
 
-```kuri subscribe <r-dakimakuras|cuddly-octopus>```
+```kuri subscribe <r-dakimakuras>```
 
 A channel can be unsubscribed by using:
 
-```kuri unsubscribe <r-dakimakuras|cuddly-octopus>```
+```kuri unsubscribe <r-dakimakuras>```
 
 ### Nya
 

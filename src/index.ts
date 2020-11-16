@@ -3,7 +3,6 @@ import * as fs from 'fs-extra';
 import * as _ from 'lodash';
 import * as env from './env';
 import * as reddit from './reddit';
-import * as cuddlyOctopus from './cuddlyoctopus';
 import { Mutex } from './mutex';
 import { currency } from './currency';
 import { Publisher } from './publisher';
@@ -13,8 +12,7 @@ const client = new Discord.Client();
 const syrene = new Discord.Client();
 
 const publishers = {
-  'r-dakimakuras': new Publisher(client, 'r-dakimakuras'),
-  'cuddly-octopus': new Publisher(env.syreneToken ? syrene : client, 'cuddly-octopus')
+  'r-dakimakuras': new Publisher(client, 'r-dakimakuras')
 };
 
 let assignableRoles = [];
@@ -69,7 +67,6 @@ client.on('ready', async () => {
 
   // start publisher checks
   checkPublisher('r-dakimakuras', 15, reddit.getEmbeds.bind(reddit, 'dakimakuras')); // check r/dakimakuras every 15 minutes
-  checkPublisher('cuddly-octopus', 60 * 12, cuddlyOctopus.getEmbeds); // check cuddly octopus every 12 hours
 });
 
 client.on('message', async (msg: Discord.Message) => {
