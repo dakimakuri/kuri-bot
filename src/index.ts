@@ -6,17 +6,27 @@ import * as reddit from './reddit';
 import { Mutex } from './mutex';
 import { currency } from './currency';
 import { Publisher } from './publisher';
+import { TimeToLive } from './time-to-live';
 const cats = require('cat-ascii-faces');
 
-const client = new Discord.Client();
+const client = new Discord.Client({ partials: ['USER', 'MESSAGE', 'CHANNEL', 'REACTION', 'GUILD_MEMBER'] });
 const syrene = new Discord.Client();
 
 const publishers = {
   'r-dakimakuras': new Publisher(client, 'r-dakimakuras')
 };
 
-let assignableRoles = [];
+const timeToLive = new TimeToLive(client, {
+  emojis: {
+    '⬛': { minutesToLive: 1 },
+    '🟥': { minutesToLive: 60 },
+    '🟧': { minutesToLive: 60 * 24 },
+    '🟨': { minutesToLive: 60 * 24 * 3 },
+    '🟩': { reset: true }
+  }
+});
 
+let assignableRoles = [];
 
 async function checkPublisher(name: string, delayMinutes: number, fn: any) {
   while (true) {
@@ -199,6 +209,27 @@ client.on('message', async (msg: Discord.Message) => {
   }
 });
 
+client.on('messageReactionAdd', async (reaction, user) => {
+  if (timeToLive.match(reaction.emoji.name)) {
+    reaction = await reaction.fetch();
+    user = await user.fetch();
+
+    if (user.id === client.user.id) {
+      return;
+    }
+
+    let message = await reaction.message.fetch();
+    let member = await message.guild.members.fetch(user);
+    let mod = member.permissions.has('MANAGE_MESSAGES');
+
+    if (mod) {// || message.author.id === member.id) {
+      await timeToLive.apply(message, reaction.emoji.name);
+    } else {
+      await reaction.users.remove(user);
+    }
+  }
+});
+
 syrene.on('ready', async () => {
   console.log(`Logged in as ${syrene.user.tag}!`);
 });
@@ -230,6 +261,7 @@ syrene.on('message', async (msg: Discord.Message) => {
     await fs.ensureDir('data');
     await fs.ensureDir('data/cache');
     await fs.ensureDir('data/publishers');
+    await timeToLive.load();
     if (env.syreneToken) {
       syrene.login(env.syreneToken);
     }
