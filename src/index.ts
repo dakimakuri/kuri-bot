@@ -234,6 +234,8 @@ syrene.on('ready', async () => {
   console.log(`Logged in as ${syrene.user.tag}!`);
 });
 
+const octoHugId = "617843371540742144";
+const octoHugEmote = "<:Octohug:617843371540742144>";
 syrene.on('message', async (msg: Discord.Message) => {
   if (msg.author.bot) return;
   if (!msg.member) return;
@@ -253,6 +255,10 @@ syrene.on('message', async (msg: Discord.Message) => {
       let timeout_id = setTimeout(matchOcto, octoTimeout, ty, msg); //Match it later.
       octoArray.push({type: ty, id: msg.id, chan_id: msg.channel.id, timeout_id: timeout_id});
     }
+  } else if (content === octoHugEmote) {
+      msg.react(octoHugId);
+      //Note: This WILL fail if the bot is used in a server that's
+      //not Dakimakuras, as the emote will not be available.
   }
 });
 
