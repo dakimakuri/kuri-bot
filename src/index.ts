@@ -3,22 +3,30 @@ import * as fs from 'fs-extra';
 import * as _ from 'lodash';
 import * as env from './env';
 import * as reddit from './reddit';
-import * as cuddlyOctopus from './cuddlyoctopus';
 import { Mutex } from './mutex';
 import { currency } from './currency';
 import { Publisher } from './publisher';
+import { TimeToLive } from './time-to-live';
 const cats = require('cat-ascii-faces');
 
-const client = new Discord.Client();
+const client = new Discord.Client({ partials: ['USER', 'MESSAGE', 'CHANNEL', 'REACTION', 'GUILD_MEMBER'] });
 const syrene = new Discord.Client();
 
 const publishers = {
-  'r-dakimakuras': new Publisher(client, 'r-dakimakuras'),
-  'cuddly-octopus': new Publisher(env.syreneToken ? syrene : client, 'cuddly-octopus')
+  'r-dakimakuras': new Publisher(client, 'r-dakimakuras')
 };
 
-let assignableRoles = [];
+const timeToLive = new TimeToLive(client, {
+  emojis: {
+    '⬛': { minutesToLive: 1 },
+    '🟥': { minutesToLive: 60 },
+    '🟧': { minutesToLive: 60 * 24 },
+    '🟨': { minutesToLive: 60 * 24 * 3 },
+    '🟩': { reset: true }
+  }
+});
 
+let assignableRoles = [];
 
 async function checkPublisher(name: string, delayMinutes: number, fn: any) {
   while (true) {
@@ -38,22 +46,22 @@ async function checkPublisher(name: string, delayMinutes: number, fn: any) {
 let octoArray = [];
 let octoMutex = new Mutex();
 const octoTimeout = 20000; // 20 seconds
-const octo1Emote = "<:Octo1:624238806471802902>"
-const octo2Emote = "<:Octo2:624238818807119882>"
+const octo1Emote = "<:Octo1:733281498697826324>"
+const octo2Emote = "<:Octo2:733281510588940288>"
 function matchOcto(typeToMatch : number, originalMessage: any) {
-    let idOfOriginalMessage = originalMessage.id;
-    // No need to check if already matched,
-    // as if it were the timeout would be cleared.
-    
-    //Remove the message from the array
-    octoArray.splice(octoArray.findIndex(inst => inst.id === idOfOriginalMessage), 1);
-    
-    //Send message to match the octopus.
-    if(typeToMatch == 1) {
-        originalMessage.channel.send(octo2Emote);
-    } else {
-        originalMessage.channel.send(octo1Emote);
-    }
+  let idOfOriginalMessage = originalMessage.id;
+  // No need to check if already matched,
+  // as if it were the timeout would be cleared.
+
+  //Remove the message from the array
+  octoArray.splice(octoArray.findIndex(inst => inst.id === idOfOriginalMessage), 1);
+
+  //Send message to match the octopus.
+  if(typeToMatch == 1) {
+    originalMessage.channel.send(octo2Emote);
+  } else {
+    originalMessage.channel.send(octo1Emote);
+  }
 }
 
 client.on('ready', async () => {
@@ -69,7 +77,6 @@ client.on('ready', async () => {
 
   // start publisher checks
   checkPublisher('r-dakimakuras', 15, reddit.getEmbeds.bind(reddit, 'dakimakuras')); // check r/dakimakuras every 15 minutes
-  checkPublisher('cuddly-octopus', 60 * 12, cuddlyOctopus.getEmbeds); // check cuddly octopus every 12 hours
 });
 
 client.on('message', async (msg: Discord.Message) => {
@@ -123,7 +130,7 @@ client.on('message', async (msg: Discord.Message) => {
           if (!first) {
             response += ', ';
           }
-          let role = msg.guild.roles.get(assignableRole.role);
+          let role = await msg.guild.roles.fetch(assignableRole.role);
           response += `${assignableRole.command} (${role.name})`;
           first = false;
         }
@@ -141,7 +148,7 @@ client.on('message', async (msg: Discord.Message) => {
           if (_.find(assignableRoles, { command, guild } as any)) {
             await msg.channel.send('Command already exists: ' + command);
           } else {
-            if (role.hasPermission('ADMINISTRATOR')) {
+            if (role.permissions.has('ADMINISTRATOR')) {
               await msg.channel.send(`${role.name} cannot be self-assigned.`);
             } else {
               assignableRoles.push({ command, guild, role: role.id });
@@ -184,20 +191,41 @@ client.on('message', async (msg: Discord.Message) => {
   } else {
     for (let assignableRole of assignableRoles) {
       if (content === assignableRole.command) {
-        let role = msg.guild.roles.get(assignableRole.role);
+        let role = await msg.guild.roles.fetch(assignableRole.role);
         if (role) {
-          let hasRole = msg.member.roles.has(assignableRole.role);
+          let hasRole = msg.member.roles.cache.has(assignableRole.role);
           if (hasRole) {
             await msg.reply(`Removing the role: ${role.name}`);
-            msg.member.removeRole(role);
+            await msg.member.roles.remove(role);
           } else {
             await msg.reply(`Giving you the role: ${role.name}`);
-            msg.member.addRole(role);
+            await msg.member.roles.add(role);
           }
         } else {
           await msg.reply(`The role for that command is is no longer available.`);
         }
       }
+    }
+  }
+});
+
+client.on('messageReactionAdd', async (reaction, user) => {
+  if (timeToLive.match(reaction.emoji.name)) {
+    reaction = await reaction.fetch();
+    user = await user.fetch();
+
+    if (user.id === client.user.id) {
+      return;
+    }
+
+    let message = await reaction.message.fetch();
+    let member = await message.guild.members.fetch(user);
+    let mod = member.permissions.has('MANAGE_MESSAGES');
+
+    if (mod) {// || message.author.id === member.id) {
+      await timeToLive.apply(message, reaction.emoji.name);
+    } else {
+      await reaction.users.remove(user);
     }
   }
 });
@@ -214,16 +242,16 @@ syrene.on('message', async (msg: Discord.Message) => {
   let content = msg.content.trim();
   if (content === octo1Emote || content === octo2Emote) {
     // Use strict equality since we really only want to consider the message body being strictly the emoji.
-      let ty = content===octo1Emote?1:2;
-      let otherTy = content===octo1Emote?2:1;
-      
-      let thisChannelOctos = octoArray.filter(inst => inst.chan_id === msg.channel.id);
-      if(thisChannelOctos.length !== 0 && thisChannelOctos[thisChannelOctos.length - 1].type === otherTy) {
-        //This message is here to match an Octo2; just cancel it out
-        let toCancel = thisChannelOctos[thisChannelOctos.length - 1];
-        octoArray.splice(octoArray.findIndex(inst => inst.id === toCancel.id), 1);
-        clearTimeout(toCancel.timeout_id);
-      } else {
+    let ty = content===octo1Emote?1:2;
+    let otherTy = content===octo1Emote?2:1;
+
+    let thisChannelOctos = octoArray.filter(inst => inst.chan_id === msg.channel.id);
+    if(thisChannelOctos.length !== 0 && thisChannelOctos[thisChannelOctos.length - 1].type === otherTy) {
+      //This message is here to match an Octo2; just cancel it out
+      let toCancel = thisChannelOctos[thisChannelOctos.length - 1];
+      octoArray.splice(octoArray.findIndex(inst => inst.id === toCancel.id), 1);
+      clearTimeout(toCancel.timeout_id);
+    } else {
       let timeout_id = setTimeout(matchOcto, octoTimeout, ty, msg); //Match it later.
       octoArray.push({type: ty, id: msg.id, chan_id: msg.channel.id, timeout_id: timeout_id});
     }
@@ -239,6 +267,7 @@ syrene.on('message', async (msg: Discord.Message) => {
     await fs.ensureDir('data');
     await fs.ensureDir('data/cache');
     await fs.ensureDir('data/publishers');
+    await timeToLive.load();
     if (env.syreneToken) {
       syrene.login(env.syreneToken);
     }

@@ -25,7 +25,7 @@ function rssToEmbed(rss: any, name: string) {
     thumb = thumb.substr(0, s);
   }
 
-  const embed = new Discord.RichEmbed();
+  const embed = new Discord.MessageEmbed();
   if (typeof rss.title === 'string') embed.setTitle(rss.title.substr(0, 256));
   if (typeof rss.link === 'string') embed.setURL(rss.link);
   embed.setColor(16727832); // TODO: new reddit color
@@ -38,9 +38,9 @@ function rssToEmbed(rss: any, name: string) {
   return embed;
 }
 
-export async function getEmbeds(subreddit: string, _since: Date): Promise<Discord.RichEmbed[]> {
+export async function getEmbeds(subreddit: string, _since: Date): Promise<Discord.MessageEmbed[]> {
   let feed = await parser.parseURL(`https://www.reddit.com/r/${subreddit}/.rss`);
-  let embeds: Discord.RichEmbed[] = [];
+  let embeds: Discord.MessageEmbed[] = [];
   feed.items.sort((a: any, b: any) => (new Date(a.pubDate).getTime()) - (new Date(b.pubDate).getTime())); // TODO: make sure pubDate isnt undefined
   for (let item of feed.items) {
     embeds.push(rssToEmbed(item, `r/${subreddit}`));

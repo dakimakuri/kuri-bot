@@ -5,9 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "env-cmd ./test.env nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
-    "deploy": "bash -c ./scripts/deploy.sh",
-    "ssh": "bash -c ./scripts/ssh.sh",
-    "tsc": "tsc",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "dakimakuri",
@@ -15,10 +13,10 @@
   "dependencies": {
     "cat-ascii-faces": "^2.0.0",
     "cheerio": "^1.0.0-rc.2",
-    "discord.js": "^11.4.2",
+    "discord.js": "^12.4.1",
     "fs-extra": "^7.0.1",
     "jsonschema": "^1.2.4",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.20",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.5",
     "rss-parser": "^3.6.2",
@@ -30,11 +28,11 @@
     "@types/fs-extra": "^5.0.4",
     "@types/jsonschema": "^1.1.1",
     "@types/lodash": "^4.14.119",
+    "@types/node": "^14.14.6",
     "@types/request-promise-native": "^1.0.15",
     "env-cmd": "^8.0.2",
-    "nodemon": "^1.18.9",
+    "nodemon": "^2.0.6",
     "ts-node": "^7.0.1",
-    "tsc": "^1.20150623.0",
-    "typescript": "^3.2.4"
+    "typescript": "^4.0.5"
   }
 }

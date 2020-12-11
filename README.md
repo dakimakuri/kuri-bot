@@ -1,6 +1,8 @@
 # Kuri Bot
 
-The official Dakimakuri Discord bot. This is not a general purpose bot and is made specifically for the Dakimakuri Discord server. Contributions are welcome (although new features are discouraged without approval) and the code is released under the MIT license.
+[![Build Status](https://drone.kuri.ws/api/badges/dakimakuri/kuri-bot/status.svg)](https://drone.kuri.ws/dakimakuri/kuri-bot)
+
+The Kuri bot for the [Dakimakuras Discord](https://discord.gg/Ybb78PM). This is not a general purpose bot and is made specifically for the Dakimakuras Discord server. Contributions are welcome (although new features are discouraged without approval) and the code is released under the MIT license.
 
 ## Getting Started
 
@@ -25,7 +27,7 @@ To use the currency conversion you must have a fixer.io account (the free tier i
 
 ### Syrene Bot
 
-A separate Syrene bot can be used for posting Cuddly Octopus updates. If not present, Kuri will post the updates like usual. To configure the Syrene bot add ```SYRENE_TOKEN``` to the environment file with the bot's token.
+A separate Syrene bot can be used for giving octopus hugs.
 
 ```SYRENE_TOKEN="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"```
 
@@ -53,15 +55,15 @@ Will output:
 
 ### RSS publishers
 
-Fetches rss feeds from [r/Dakimakuras](https://www.reddit.com/r/Dakimakuras) and [Cuddly Octopus](https://cuddlyoctopus.com) publishing any new posts to all subscribed channels.
+Fetches rss feeds from [r/Dakimakuras](https://www.reddit.com/r/Dakimakuras) publishing any new posts to all subscribed channels.
 
 Subscribe using:
 
-```kuri subscribe <r-dakimakuras|cuddly-octopus>```
+```kuri subscribe <r-dakimakuras>```
 
 A channel can be unsubscribed by using:
 
-```kuri unsubscribe <r-dakimakuras|cuddly-octopus>```
+```kuri unsubscribe <r-dakimakuras>```
 
 ### Nya
 
@@ -69,17 +71,16 @@ Posts cute cat faces when someone ```nya```s.
 
 ## Deploying
 
-The bot is meant to be ran inside a Docker container and is deployed with docker-compose. Environment variables should be configured within a ```prod.env``` file (with the same format as ```test.env```). The actual production bot is deployed with ```npm run deploy``` and the ```scripts/deploy.sh``` script on a docker-machine named ```kuri-bot```.
+The bot is meant to be ran inside a Docker container and is deployed with docker-compose. Environment variables should be configured within a ```prod.env``` file (with the same format as ```test.env```).
 
-The following Docker commands should work to test a production deployment locally:
+The following docker compose commands should work to test a production deployment locally:
 
 ```
-docker-compose build
-docker-compose up -d
+docker-compose up -d --build
 ```
 
 To remove the deployment from docker:
 
 ```
-docker-compose down
+docker-compose down -v
 ```
