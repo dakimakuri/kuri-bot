@@ -69,10 +69,11 @@ async function checkShops(message: Discord.Message, forceCheck: boolean) {
   const content = message.content.trim();
   const shops = await findShopInfo(content);
   let messages: string[] = [];
-  let legitMessage = true;
   for (const shop of shops) {
+    let legitMessage = true;
     for (const flag of shop.flags) {
       if (flag.type === 'unknown') {
+        legitMessage = false;
         if (forceCheck) {
           const note = `I don't have any information about ${shop.url}.`;
           if (!messages.includes(note)) {

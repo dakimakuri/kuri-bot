@@ -58,6 +58,10 @@ export async function findShopInfo(message: string): Promise<ShopInfo[]> {
     if (url.endsWith('/')) {
       url = url.substr(0, url.length - 1);
     }
+    const query = url.indexOf('?');
+    if (query != -1) {
+      url = url.substr(0, query);
+    }
     return url;
   };
   for (let part of split) {
