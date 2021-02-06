@@ -37,6 +37,7 @@ export class ShopInfo {
     }[];
   })[];
   url: string;
+  note?: string;
 }
 
 export async function findShopInfo(message: string): Promise<ShopInfo[]> {
@@ -71,6 +72,7 @@ export async function findShopInfo(message: string): Promise<ShopInfo[]> {
       }
       const url = new URL(part);
       let found = false;
+      let note: string;
       for (const match of matches) {
         if (url.host === match || url.host.endsWith(`.${match}`)) {
           const response = await request(`https://bootleg.gx.ag?url=${encodeURIComponent(part)}`);
@@ -78,7 +80,12 @@ export async function findShopInfo(message: string): Promise<ShopInfo[]> {
           if (obj.shop && obj.link) {
             found = true;
             obj.shop.url = stripUrl(obj.link.url);
+            if (obj.notes) {
+              obj.shop.note = obj.notes.join(' ');
+            }
             shops.push(obj.shop);
+          } else if (obj.notes) {
+            note = obj.notes.join(' ');
           }
           break;
         }
@@ -91,6 +98,7 @@ export async function findShopInfo(message: string): Promise<ShopInfo[]> {
           flags: [
             { type: 'unknown' }
           ],
+          note,
         });
       }
     } catch {
