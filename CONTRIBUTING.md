@@ -2,7 +2,7 @@
 
 ## Questions
 
-You can chat with us on the Dakimakuri discord server or in the GitHub issue tracker.
+You can chat with us on the [Dakimakuras discord server](https://discord.gg/Ybb78PM) or in the GitHub issue tracker.
 
 ## License Agreement
 
