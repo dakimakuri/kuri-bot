@@ -7,6 +7,7 @@ import { Mutex } from './mutex';
 import { currency } from './currency';
 import { Publisher } from './publisher';
 import { TimeToLive } from './time-to-live';
+import { findShopInfo } from './shop-info';
 const cats = require('cat-ascii-faces');
 
 const client = new Discord.Client({ partials: ['USER', 'MESSAGE', 'CHANNEL', 'REACTION', 'GUILD_MEMBER'] });
@@ -64,6 +65,57 @@ function matchOcto(typeToMatch : number, originalMessage: any) {
   }
 }
 
+async function checkShops(message: Discord.Message, isDirectMessage: boolean) {
+  const content = message.content.trim();
+  const shops = await findShopInfo(content);
+  let messages: string[] = [];
+  for (const shop of shops) {
+    for (const flag of shop.flags) {
+      if (flag.type === 'unknown') {
+        if (isDirectMessage) {
+          const note = `I don't have any information about ${shop.url}.`;
+          if (!messages.includes(note)) {
+            messages.push(note);
+          }
+        }
+      } else if (flag.type === 'bootlegger') {
+        const note = `The shop "${shop.name}" (${shop.url}) has been known to sell bootleg products.`;
+        if (!messages.includes(note)) {
+          messages.push(note);
+        }
+      } else if (flag.type === 'reseller') {
+        let resellerLink = false;
+        for (const link of flag.links) {
+          if (link.match) {
+            resellerLink = true;
+          }
+        }
+        if (resellerLink) {
+          let links = '';
+          for (const link of shop.links) {
+            links += `\n<${link.url}>`;
+          }
+          if (links) {
+            const note = `The shop "${shop.name}" resells at a marked up price on this storefront. You may find the same products for cheaper at:${links}`;
+            if (!messages.includes(note)) {
+              messages.push(note);
+            }
+          }
+        }
+      }
+    }
+    if (shop.flags.length == 0 && isDirectMessage) {
+      const note = `The shop "${shop.name}" (${shop.url}) is legitimate and does not sell bootleg products.`;
+      if (!messages.includes(note)) {
+        messages.push(note);
+      }
+    }
+  }
+  if (messages.length > 0) {
+    await message.channel.send(messages.join('\n'));
+  }
+}
+
 client.on('ready', async () => {
   for (let key in publishers) {
     let publisher = publishers[key];
@@ -81,7 +133,11 @@ client.on('ready', async () => {
 
 client.on('message', async (msg: Discord.Message) => {
   if (msg.author.bot) return;
-  if (!msg.member) return;
+  if (!msg.member) {
+    // is a direct message
+    await checkShops(msg, true);
+    return;
+  }
   let admin = msg.member.permissions.has('ADMINISTRATOR');
   let content = msg.content.trim();
   if (content.match(/^[-]?[\d|,]{0,12}(\.\d{1,2})?\s*\w{3}\s+to\s+\w{3}$/i)) {
@@ -206,6 +262,7 @@ client.on('message', async (msg: Discord.Message) => {
         }
       }
     }
+    await checkShops(msg, false);
   }
 });
 
