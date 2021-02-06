@@ -65,14 +65,14 @@ function matchOcto(typeToMatch : number, originalMessage: any) {
   }
 }
 
-async function checkShops(message: Discord.Message, isDirectMessage: boolean) {
+async function checkShops(message: Discord.Message, forceCheck: boolean) {
   const content = message.content.trim();
   const shops = await findShopInfo(content);
   let messages: string[] = [];
   for (const shop of shops) {
     for (const flag of shop.flags) {
       if (flag.type === 'unknown') {
-        if (isDirectMessage) {
+        if (forceCheck) {
           const note = `I don't have any information about ${shop.url}.`;
           if (!messages.includes(note)) {
             messages.push(note);
@@ -104,7 +104,7 @@ async function checkShops(message: Discord.Message, isDirectMessage: boolean) {
         }
       }
     }
-    if (shop.flags.length == 0 && isDirectMessage) {
+    if (shop.flags.length == 0 && forceCheck) {
       const note = `The shop "${shop.name}" (${shop.url}) is legitimate and does not sell bootleg products.`;
       if (!messages.includes(note)) {
         messages.push(note);
@@ -262,7 +262,7 @@ client.on('message', async (msg: Discord.Message) => {
         }
       }
     }
-    await checkShops(msg, false);
+    await checkShops(msg, msg.mentions.has(client.user));
   }
 });
 
