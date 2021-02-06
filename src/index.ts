@@ -75,7 +75,7 @@ async function checkShops(message: Discord.Message, forceCheck: boolean) {
       if (flag.type === 'unknown') {
         legitMessage = false;
         if (forceCheck) {
-          const note = `I don't know about that specific link. ${shop.note}` || `I don't have any information about ${shop.url}.`;
+          const note = shop.note ? `I don't know about that specific link. ${shop.note}` : `I don't have any information about ${shop.url}.`;
           if (!messages.includes(note)) {
             messages.push(note);
           }
