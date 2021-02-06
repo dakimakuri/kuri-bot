@@ -19,7 +19,7 @@ export class Mutex {
   private resolves: Function[] = [];
 
   lock() {
-    return new Promise(resolve => {
+    return new Promise<void>(resolve => {
       if (this.locked) {
         this.resolves.push(resolve);
       } else {
