@@ -69,6 +69,7 @@ async function checkShops(message: Discord.Message, forceCheck: boolean) {
   const content = message.content.trim();
   const shops = await findShopInfo(content);
   let messages: string[] = [];
+  let legitMessage = true;
   for (const shop of shops) {
     for (const flag of shop.flags) {
       if (flag.type === 'unknown') {
@@ -80,6 +81,7 @@ async function checkShops(message: Discord.Message, forceCheck: boolean) {
         }
       } else if (flag.type === 'bootlegger') {
         const note = `The shop "${shop.name}" (${shop.url}) has been known to sell bootleg products.`;
+        legitMessage = false;
         if (!messages.includes(note)) {
           messages.push(note);
         }
@@ -92,6 +94,7 @@ async function checkShops(message: Discord.Message, forceCheck: boolean) {
         }
         if (resellerLink) {
           let links = '';
+          legitMessage = false;
           for (const link of shop.links) {
             links += `\n<${link.url}>`;
           }
@@ -104,7 +107,7 @@ async function checkShops(message: Discord.Message, forceCheck: boolean) {
         }
       }
     }
-    if (shop.flags.length == 0 && forceCheck) {
+    if (legitMessage && forceCheck) {
       const note = `The shop "${shop.name}" (${shop.url}) is legitimate and does not sell bootleg products.`;
       if (!messages.includes(note)) {
         messages.push(note);
