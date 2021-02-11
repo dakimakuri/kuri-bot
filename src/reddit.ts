@@ -43,7 +43,11 @@ export async function getEmbeds(subreddit: string, _since: Date): Promise<Discor
   let embeds: Discord.MessageEmbed[] = [];
   feed.items.sort((a: any, b: any) => (new Date(a.pubDate).getTime()) - (new Date(b.pubDate).getTime())); // TODO: make sure pubDate isnt undefined
   for (let item of feed.items) {
-    embeds.push(rssToEmbed(item, `r/${subreddit}`));
+    try {
+      embeds.push(rssToEmbed(item, `r/${subreddit}`));
+    } catch (err) {
+      console.error(err);
+    }
   }
   return embeds;
 }
