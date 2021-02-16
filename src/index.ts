@@ -70,32 +70,42 @@ async function checkShops(message: Discord.Message, forceCheck: boolean) {
   const shops = await findShopInfo(content);
   let messages: string[] = [];
   for (const shop of shops) {
-    let legitMessage = true;
-    for (const flag of shop.flags) {
-      if (flag.type === 'unknown') {
-        legitMessage = false;
-        if (forceCheck) {
-          const note = shop.note ? `❓ I don't know about that specific link. ${shop.note}` : `❓ I don't have any information about ${shop.url}.`;
-          if (!messages.includes(note)) {
-            messages.push(note);
-          }
-        }
-      } else if (flag.type === 'bootlegger') {
-        const note = `❌ The shop "${shop.name}" (${shop.url}) has been known to sell bootleg products.`;
-        legitMessage = false;
+    if (shop.status === 'unknown') {
+      if (forceCheck) {
+        const note = shop.note ? `❓ I don't know about that specific link. ${shop.note}` : `❓ I don't have any information about ${shop.url}.`;
         if (!messages.includes(note)) {
           messages.push(note);
         }
-      } else if (flag.type === 'reseller') {
+      }
+    } else if (shop.status === 'scalper') {
+      if (forceCheck) {
+        const note = `❗ The shop "${shop.name}" (${shop.url}) is a scalper. Scalpers buy legitimate items (often with limited stock) and resell them at a marked up price. If you insist on buying from a scalper, first check that the item is not still officially available.`;
+        if (!messages.includes(note)) {
+          messages.push(note);
+        }
+      }
+    } else if (shop.status === 'questionable') {
+      if (forceCheck && shop.note) {
+        const note = `❗ The shop "${shop.name}" (${shop.url}) is questionable. ${shop.note}`;
+        if (!messages.includes(note)) {
+          messages.push(note);
+        }
+      }
+    } else if (shop.status === 'bootlegger') {
+      const note = `❌ The shop "${shop.name}" (${shop.url}) has been known to sell bootleg products.`;
+      if (!messages.includes(note)) {
+        messages.push(note);
+      }
+    } else if (shop.status === 'legitimate') {
+      if (shop.reseller) {
         let resellerLink = false;
-        for (const link of flag.links) {
+        for (const link of shop.reseller.links) {
           if (link.match) {
             resellerLink = true;
           }
         }
         if (resellerLink) {
           let links = '';
-          legitMessage = false;
           for (const link of shop.links) {
             links += `\n<${link.url}>`;
           }
@@ -106,12 +116,13 @@ async function checkShops(message: Discord.Message, forceCheck: boolean) {
             }
           }
         }
-      }
-    }
-    if (legitMessage && forceCheck) {
-      const note = `✅ The shop "${shop.name}" (${shop.url}) is legitimate and does not sell bootleg products.`;
-      if (!messages.includes(note)) {
-        messages.push(note);
+      } else {
+        if (forceCheck) {
+          const note = `✅ The shop "${shop.name}" (${shop.url}) is legitimate and does not sell bootleg products.`;
+          if (!messages.includes(note)) {
+            messages.push(note);
+          }
+        }
       }
     }
   }
