@@ -97,23 +97,23 @@ async function checkShops(message: Discord.Message, forceCheck: boolean) {
         messages.push(note);
       }
     } else if (shop.status === 'legitimate') {
+      let resellerLink = false;
       if (shop.reseller) {
-        let resellerLink = false;
         for (const link of shop.reseller.links) {
           if (link.match) {
             resellerLink = true;
           }
         }
-        if (resellerLink) {
-          let links = '';
-          for (const link of shop.links) {
-            links += `\n<${link.url}>`;
-          }
-          if (links) {
-            const note = `ℹ️ The shop "${shop.name}" resells at a marked up price on this storefront. You may find the same products for cheaper at:${links}`;
-            if (!messages.includes(note)) {
-              messages.push(note);
-            }
+      }
+      if (resellerLink) {
+        let links = '';
+        for (const link of shop.links) {
+          links += `\n<${link.url}>`;
+        }
+        if (links) {
+          const note = `ℹ️ The shop "${shop.name}" resells at a marked up price on this storefront. You may find the same products for cheaper at:${links}`;
+          if (!messages.includes(note)) {
+            messages.push(note);
           }
         }
       } else {
@@ -277,7 +277,7 @@ client.on('message', async (msg: Discord.Message) => {
         }
       }
     }
-    await checkShops(msg, msg.mentions.has(client.user));
+    await checkShops(msg, msg.mentions.has(client.user) || msg.channel.id === '491107635609731072');//807402589565616171');
   }
 });
 
