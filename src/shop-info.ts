@@ -67,6 +67,9 @@ export async function findShopInfo(message: string): Promise<ShopInfo[]> {
         part = part.substr(1, part.length - 2);
       }
       const url = new URL(part);
+      if (!url.hostname || (url.protocol !== 'https:' && url.protocol !== 'http:')) {
+        continue;
+      }
       let found = false;
       let note: string;
       for (const match of matches) {
