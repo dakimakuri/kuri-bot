@@ -277,7 +277,7 @@ client.on('message', async (msg: Discord.Message) => {
         }
       }
     }
-    await checkShops(msg, msg.mentions.has(client.user) || msg.channel.id === '491107635609731072');//807402589565616171');
+    await checkShops(msg, msg.mentions.has(client.user) || msg.channel.id === '807402589565616171');
   }
 });
 
