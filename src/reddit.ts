@@ -1,7 +1,14 @@
 import * as Discord from 'discord.js';
 
 let Parser = require('rss-parser');
-let parser = new Parser();
+let parser = new Parser({
+  customFields: {
+    item: [
+      'pubDate',
+      'content',
+    ],
+  },
+});
 
 function rssToEmbed(rss: any, name: string) {
   // TODO: schema check rss?
@@ -13,7 +20,7 @@ function rssToEmbed(rss: any, name: string) {
   rss.author = rss.author.substr(3);
 
   // Search for thumbnail
-  let found = rss.content.match(/\<img.*src=[\'|\"]http(s)?\:\/\/.*thumb.*\.reddit.*\/.*?[\'|\"]/);
+  let found = rss.content.match(/\<img.*src=[\'|\"]http(s)?\:\/\/.*preview\.redd\.it.*\/.*?[\'|\"]/);
   let thumb: string | undefined;
   if (found) {
     thumb = String(found[0]);
@@ -22,7 +29,7 @@ function rssToEmbed(rss: any, name: string) {
     thumb = thumb.substr(s + 1);
     s = thumb.search(/[\'|\"]/);
     if (s === -1) throw new Error('Expected token not found when searching for Reddit thumbnail.');
-    thumb = thumb.substr(0, s);
+    thumb = thumb.substr(0, s).replace(/&amp;/g, '&');
   }
 
   const embed = new Discord.MessageEmbed();
@@ -41,6 +48,7 @@ function rssToEmbed(rss: any, name: string) {
 export async function getEmbeds(subreddit: string, _since: Date): Promise<Discord.MessageEmbed[]> {
   let feed = await parser.parseURL(`https://www.reddit.com/r/${subreddit}/.rss`);
   let embeds: Discord.MessageEmbed[] = [];
+  feed.items.filter(item => item.pubDate != null);
   feed.items.sort((a: any, b: any) => (new Date(a.pubDate).getTime()) - (new Date(b.pubDate).getTime())); // TODO: make sure pubDate isnt undefined
   for (let item of feed.items) {
     try {
