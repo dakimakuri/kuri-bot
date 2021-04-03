@@ -22,7 +22,7 @@ const timeToLive = new TimeToLive(client, {
     '⬛': { minutesToLive: 1 },
     '🟥': { minutesToLive: 60 },
     '🟧': { minutesToLive: 60 * 24 },
-    '🟨': { minutesToLive: 60 * 24 * 3 },
+    '🟨': { minutesToLive: 60 * 24 * 7 },
     '🟩': { reset: true }
   }
 });
