@@ -33,14 +33,17 @@ A separate Syrene bot can be used for giving octopus hugs.
 
 ### AWS Credentials (for translation)
 
-Translation support is powered by AWS, so credentials are required for translations to work. It is recommended that you create a new user specifically for this purpose. The only permission needed is `translate:TranslateText`:
+Translation support is powered by AWS, so credentials are required for translations to work. It is recommended that you create a new user specifically for this purpose. The only permissions needed are `translate:TranslateText` and `comprehend:DetectDominantLanguage`:
 
 ```
 {
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Action": "translate:TranslateText",
+      "Action": [
+        "translate:TranslateText",
+        "comprehend:DetectDominantLanguage"
+      ],
       "Effect": "Allow",
       "Resource": "*"
     }

@@ -266,6 +266,7 @@ client.on('message', async (msg: Discord.Message) => {
       const { text, from } = await translate(content.substr(content.indexOf(' ') + 1));
       await message.edit('Translated from ' + from + ':\n```' + text.replace(/\`/, `'`) + '```');
     } catch (err) {
+      console.error(err);
       await message.edit('Translation failed.');
     }
   } else {
