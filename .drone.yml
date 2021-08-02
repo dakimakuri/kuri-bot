@@ -53,3 +53,7 @@ steps:
       from_secret: CREDENTIALS_URL
     CREDENTIALS_PASSWORD:
       from_secret: CREDENTIALS_PASSWORD
+    AWS_ACCESS_KEY:
+      from_secret: AWS_ACCESS_KEY
+    AWS_SECRET_KEY:
+      from_secret: AWS_SECRET_KEY
