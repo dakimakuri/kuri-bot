@@ -33,6 +33,8 @@ steps:
   - echo "TOKEN=$TOKEN" > prod.env
   - echo "SYRENE_TOKEN=$SYRENE_TOKEN" >> prod.env
   - echo "FIXER_API=$FIXER_API" >> prod.env
+  - echo "AWS_ACCESS_KEY=$AWS_ACCESS_KEY" >> prod.env
+  - echo "AWS_SECRET_KEY=$AWS_SECRET_KEY" >> prod.env
   - eval $(docker-machine env kuri-bot --shell bash)
   - docker-compose -p kuri-bot up -d --build
   when:
