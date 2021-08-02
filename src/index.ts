@@ -8,6 +8,7 @@ import { currency } from './currency';
 import { Publisher } from './publisher';
 import { TimeToLive } from './time-to-live';
 import { findShopInfo } from './shop-info';
+import { translate } from './translate';
 const cats = require('cat-ascii-faces');
 
 const client = new Discord.Client({ partials: ['USER', 'MESSAGE', 'CHANNEL', 'REACTION', 'GUILD_MEMBER'] });
@@ -258,6 +259,14 @@ client.on('message', async (msg: Discord.Message) => {
           await msg.channel.send(`Unsubscribed from ${key}.`);
         }
       }
+    }
+  } else if (content.startsWith('!translate ') || content.startsWith('!t ')) {
+    const message = await msg.channel.send('Translating...');
+    try {
+      const { text, from } = await translate(content.substr(content.indexOf(' ') + 1));
+      await message.edit('Translated from ' + from + ':\n```' + text.replace(/\`/, `'`) + '```');
+    } catch (err) {
+      await message.edit('Translation failed.');
     }
   } else {
     for (let assignableRole of assignableRoles) {
