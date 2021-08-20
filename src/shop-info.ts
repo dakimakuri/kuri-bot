@@ -36,7 +36,8 @@ export class ShopInfo {
   note?: string;
 }
 
-export async function findShopInfo(message: string): Promise<ShopInfo[]> {
+export async function findShopInfo(message: string, opts: { ignoreMatches?: boolean } = {}): Promise<ShopInfo[]> {
+  let { ignoreMatches = false } = opts;
   let matches: string[];
   try {
     matches = await getMatches();
@@ -72,21 +73,28 @@ export async function findShopInfo(message: string): Promise<ShopInfo[]> {
       }
       let found = false;
       let note: string;
-      for (const match of matches) {
-        if (url.host === match || url.host.endsWith(`.${match}`)) {
-          const response = await request(`https://bootleg.gx.ag/api/v1/check/${encodeURIComponent(part)}`);
-          const obj = JSON.parse(response);
-          if (obj.shop && obj.link) {
-            found = true;
-            obj.shop.url = stripUrl(obj.link.url);
-            if (obj.notes) {
-              obj.shop.note = obj.notes.join(' ');
-            }
-            shops.push(obj.shop);
-          } else if (obj.notes) {
-            note = obj.notes.join(' ');
+      const check = async () => {
+        const response = await request(`https://bootleg.gx.ag/api/v1/check/${encodeURIComponent(part)}`);
+        const obj = JSON.parse(response);
+        if (obj.shop && obj.link) {
+          found = true;
+          obj.shop.url = stripUrl(obj.link.url);
+          if (obj.notes) {
+            obj.shop.note = obj.notes.join(' ');
           }
-          break;
+          shops.push(obj.shop);
+        } else if (obj.notes) {
+          note = obj.notes.join(' ');
+        }
+      };
+      if (ignoreMatches) {
+        await check();
+      } else {
+        for (const match of matches) {
+          if (url.host === match || url.host.endsWith(`.${match}`)) {
+            await check();
+            break;
+          }
         }
       }
       if (!found) {

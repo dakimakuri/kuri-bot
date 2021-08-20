@@ -68,7 +68,7 @@ function matchOcto(typeToMatch : number, originalMessage: any) {
 
 async function checkShops(message: Discord.Message, forceCheck: boolean) {
   const content = message.content.trim();
-  const shops = await findShopInfo(content);
+  const shops = await findShopInfo(content, { ignoreMatches: forceCheck });
   let messages: string[] = [];
   for (const shop of shops) {
     if (shop.status === 'unknown') {
